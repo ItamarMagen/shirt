@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1030">
+  <title>The Wedding Crew</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>You scanned a shirt 👀</h1>
+    <p>Congratulations, you've found the Wedding Crew. Scroll at your own risk.</p>
+  </header>
+
+  <main id="gallery" class="gallery"></main>
+
+  <footer class="bottom">That's all the evidence we've got. Now get back on the dance floor 💃</footer>
+
+  <div id="lightbox" class="lightbox" hidden>
+    <button class="lb-close" aria-label="Close">✕</button>
+    <button class="lb-nav lb-prev" aria-label="Previous">‹</button>
+    <figure>
+      <img id="lb-img" alt="">
+      <figcaption id="lb-cap"></figcaption>
+    </figure>
+    <button class="lb-nav lb-next" aria-label="Next">›</button>
+    <div id="lb-count" class="lb-count"></div>
+  </div>
+
+  <script src="photos.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
