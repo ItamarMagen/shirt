@@ -1,15 +1,23 @@
 (function () {
   const gallery = document.getElementById("gallery");
   const tilts = [-1.5, 1, -0.5, 1.5, -1, 0.5];
+  const isVideo = (src) => /\.(mp4|webm|mov|m4v)$/i.test(src);
 
   // Build the cards
   PHOTOS.forEach((p, i) => {
     const fig = document.createElement("figure");
     fig.className = "card";
     fig.style.setProperty("--tilt", tilts[i % tilts.length] + "deg");
-    fig.innerHTML = `<img loading="lazy" alt=""><figcaption></figcaption>`;
-    fig.querySelector("img").src = p.src;
-    fig.querySelector("img").alt = p.caption || "";
+    if (isVideo(p.src)) {
+      // Muted + playsinline so phones allow autoplay in the feed
+      fig.classList.add("is-video");
+      fig.innerHTML = `<div class="media"><video muted loop playsinline preload="metadata"></video><span class="badge">🔊 הקישו לסאונד</span></div><figcaption></figcaption>`;
+      fig.querySelector("video").src = p.src + "#t=0.1";
+    } else {
+      fig.innerHTML = `<img loading="lazy" alt=""><figcaption></figcaption>`;
+      fig.querySelector("img").src = p.src;
+      fig.querySelector("img").alt = p.caption || "";
+    }
     fig.querySelector("figcaption").textContent = p.caption || "";
     fig.addEventListener("click", () => open(i));
     gallery.appendChild(fig);
@@ -23,28 +31,59 @@
   }, { threshold: 0.12 });
   document.querySelectorAll(".card").forEach((c) => io.observe(c));
 
+  // Play feed videos only while they're on screen
+  const vio = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting && lb.hidden) e.target.play().catch(() => {});
+      else e.target.pause();
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll(".card video").forEach((v) => vio.observe(v));
+
   // Lightbox
   const lb = document.getElementById("lightbox");
   const lbImg = document.getElementById("lb-img");
+  const lbVideo = document.getElementById("lb-video");
   const lbCap = document.getElementById("lb-cap");
   const lbCount = document.getElementById("lb-count");
   let current = 0;
 
   function show(i) {
     current = (i + PHOTOS.length) % PHOTOS.length;
-    lbImg.src = PHOTOS[current].src;
-    lbImg.alt = PHOTOS[current].caption || "";
+    const src = PHOTOS[current].src;
+    lbVideo.pause();
+    if (isVideo(src)) {
+      lbImg.hidden = true;
+      lbImg.removeAttribute("src");
+      lbVideo.hidden = false;
+      lbVideo.src = src;
+      lbVideo.muted = false;
+      lbVideo.play().catch(() => {});
+    } else {
+      lbVideo.hidden = true;
+      lbVideo.removeAttribute("src");
+      lbVideo.load();
+      lbImg.hidden = false;
+      lbImg.src = src;
+      lbImg.alt = PHOTOS[current].caption || "";
+    }
     lbCap.textContent = PHOTOS[current].caption || "";
     lbCount.textContent = `${current + 1} מתוך ${PHOTOS.length}`;
   }
   function open(i) {
+    document.querySelectorAll(".card video").forEach((v) => v.pause());
     show(i);
     lb.hidden = false;
     document.body.style.overflow = "hidden";
   }
   function close() {
     lb.hidden = true;
+    lbVideo.pause();
+    lbVideo.removeAttribute("src");
+    lbVideo.load();
     document.body.style.overflow = "";
+    // Resume whichever feed videos are on screen
+    document.querySelectorAll(".card video").forEach((v) => { vio.unobserve(v); vio.observe(v); });
   }
 
   lb.querySelector(".lb-close").addEventListener("click", close);

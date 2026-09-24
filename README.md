@@ -10,6 +10,15 @@
    ```
    File names are case-sensitive on GitHub (`Dan.JPG` ≠ `dan.jpg`).
 
+### Videos
+Videos work too. Convert each one first so it's small and plays on every phone:
+```
+bash tools/video.sh "pictures/IMG_1234.MOV" photos/dance.mp4
+```
+Then add it to `photos.js` like a photo: `{ src: "photos/dance.mp4", caption: "..." }`.
+In the feed videos autoplay muted and loop; tapping opens them full screen with sound.
+Keep clips short (under ~30 seconds); GitHub rejects files over 100 MB.
+
 ## 2. Publish on GitHub Pages (free)
 1. Go to https://github.com/new and create a **public** repo, e.g. `wedding-crew`.
 2. Click **"uploading an existing file"**. Drag in everything in this folder
