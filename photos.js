@@ -4,7 +4,6 @@
 // 3. התמונות מוצגות בסדר הזה, מלמעלה למטה.
 
 const PHOTOS = [
-  { src: "photos/test-video.mp4", caption: "סרטון בדיקה 🎬 הקישו כדי לשמוע" },
   { src: "photos/leash.jpg", caption: "הוא אמר 'כן' ומאז הוא רק אומר 'הב' 🐕" },
   { src: "photos/casino.jpg", caption: "כשאומרים לו 'תביא חברים לחתונה' והוא לוקח את זה ברצינות 🃏" },
   { src: "photos/disco.jpg", caption: "שבת בערב: קדחת. ראשון בבוקר: גב תפוס 🕺" },

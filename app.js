@@ -3,6 +3,49 @@
   const tilts = [-1.5, 1, -0.5, 1.5, -1, 0.5];
   const isVideo = (src) => /\.(mp4|webm|mov|m4v)$/i.test(src);
 
+  // Song section
+  const songEl = document.getElementById("song");
+  let songVideo = null;
+  if (typeof SONG !== "undefined" && songEl) {
+    songEl.innerHTML = `
+      <h2 class="song-title"></h2>
+      <p class="song-sub"></p>
+      <div class="song-player"></div>
+      <details class="song-lyrics">
+        <summary>📝 מילות השיר</summary>
+        <div class="lyrics-body"></div>
+      </details>`;
+    songEl.querySelector(".song-title").textContent = SONG.title || "";
+    songEl.querySelector(".song-sub").textContent = SONG.subtitle || "";
+    const player = songEl.querySelector(".song-player");
+    if (SONG.video) {
+      songVideo = document.createElement("video");
+      songVideo.controls = true;
+      songVideo.playsInline = true;
+      songVideo.preload = "metadata";
+      if (SONG.poster) songVideo.poster = SONG.poster;
+      songVideo.src = SONG.video + (SONG.poster ? "" : "#t=0.1");
+      player.appendChild(songVideo);
+    } else {
+      player.innerHTML = `<div class="song-soon"><span class="soon-icon">🎬</span><strong>הקליפ בדרך...</strong><span>עוד קצת סבלנות, זה שווה את זה</span></div>`;
+    }
+    // Lyrics: blank line = new stanza, "# " = section heading
+    const body = songEl.querySelector(".lyrics-body");
+    (SONG.lyrics || "").trim().split(/\n\s*\n/).forEach((stanza) => {
+      const div = document.createElement("div");
+      div.className = "stanza";
+      stanza.split("\n").forEach((line) => {
+        const el = document.createElement(line.startsWith("#") ? "h3" : "p");
+        el.textContent = line.replace(/^#\s*/, "");
+        div.appendChild(el);
+      });
+      body.appendChild(div);
+    });
+    if (!SONG.lyrics || !SONG.lyrics.trim()) songEl.querySelector(".song-lyrics").hidden = true;
+  } else if (songEl) {
+    songEl.hidden = true;
+  }
+
   // Build the cards
   PHOTOS.forEach((p, i) => {
     const fig = document.createElement("figure");
@@ -39,6 +82,12 @@
     });
   }, { threshold: 0.3 });
   document.querySelectorAll(".card video").forEach((v) => vio.observe(v));
+  if (songVideo) songVideo.addEventListener("play", () => {
+    document.querySelectorAll(".card video").forEach((v) => { vio.unobserve(v); v.pause(); });
+  });
+  if (songVideo) songVideo.addEventListener("pause", () => {
+    document.querySelectorAll(".card video").forEach((v) => vio.observe(v));
+  });
 
   // Lightbox
   const lb = document.getElementById("lightbox");
@@ -72,6 +121,7 @@
   }
   function open(i) {
     document.querySelectorAll(".card video").forEach((v) => v.pause());
+    if (songVideo) songVideo.pause();
     show(i);
     lb.hidden = false;
     document.body.style.overflow = "hidden";
