@@ -35,7 +35,7 @@
     lbImg.src = PHOTOS[current].src;
     lbImg.alt = PHOTOS[current].caption || "";
     lbCap.textContent = PHOTOS[current].caption || "";
-    lbCount.textContent = `${current + 1} / ${PHOTOS.length}`;
+    lbCount.textContent = `${current + 1} מתוך ${PHOTOS.length}`;
   }
   function open(i) {
     show(i);
@@ -54,8 +54,8 @@
   document.addEventListener("keydown", (e) => {
     if (lb.hidden) return;
     if (e.key === "Escape") close();
-    if (e.key === "ArrowLeft") show(current - 1);
-    if (e.key === "ArrowRight") show(current + 1);
+    if (e.key === "ArrowRight") show(current - 1); // RTL: right = previous
+    if (e.key === "ArrowLeft") show(current + 1);
   });
 
   // Swipe left/right to change photo, swipe down to close
@@ -64,7 +64,7 @@
   lb.addEventListener("touchend", (e) => {
     const dx = e.changedTouches[0].clientX - sx;
     const dy = e.changedTouches[0].clientY - sy;
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) show(current + (dx < 0 ? 1 : -1));
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) show(current + (dx > 0 ? 1 : -1)); // RTL: swipe right = next
     else if (dy > 90) close();
   });
 })();

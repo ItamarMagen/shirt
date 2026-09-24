@@ -12,20 +12,19 @@ body {
   margin: 0;
   background: var(--bg) radial-gradient(circle at 20% 0%, #3b1d6e 0, transparent 50%) fixed;
   color: var(--text);
-  font-family: "Nunito", system-ui, sans-serif;
+  font-family: "Rubik", system-ui, sans-serif;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   overflow-x: hidden;
 }
 
 .top { text-align: center; padding: 32px 16px 12px; }
 .top h1 {
-  font-family: "Bangers", cursive;
+  font-family: "Secular One", "Rubik", sans-serif;
   font-size: clamp(2.4rem, 11vw, 4rem);
-  letter-spacing: 1px;
-  margin: 0;
+    margin: 0;
   color: var(--accent);
   text-shadow: 3px 3px 0 var(--pink);
-  transform: rotate(-2deg);
+  transform: rotate(2deg);
 }
 .top p { margin: 10px auto 0; max-width: 28rem; opacity: .85; font-size: 1.05rem; }
 
@@ -58,7 +57,7 @@ body {
   background: #eee;
 }
 .card figcaption {
-  font-weight: 800;
+  font-weight: 700;
   font-size: 1.1rem;
   line-height: 1.3;
   padding: 12px 6px 0;
@@ -70,7 +69,7 @@ body {
   .card { break-inside: avoid; margin-bottom: 24px; }
 }
 
-.bottom { text-align: center; padding: 24px 16px 48px; opacity: .8; font-weight: 800; }
+.bottom { text-align: center; padding: 24px 16px 48px; opacity: .8; font-weight: 700; }
 
 /* Lightbox */
 .lightbox {
@@ -89,14 +88,14 @@ body {
   transition: transform .2s ease, opacity .2s ease;
   user-select: none; -webkit-user-drag: none;
 }
-.lightbox figcaption { margin-top: 14px; font-weight: 800; font-size: 1.15rem; padding: 0 8px; }
+.lightbox figcaption { margin-top: 14px; font-weight: 700; font-size: 1.15rem; padding: 0 8px; }
 .lightbox button {
   position: absolute; background: rgba(255,255,255,.12); color: #fff; border: 0;
   width: 48px; height: 48px; border-radius: 50%; font-size: 1.5rem; cursor: pointer;
 }
-.lb-close { top: calc(12px + env(safe-area-inset-top)); right: 12px; }
+.lb-close { top: calc(12px + env(safe-area-inset-top)); left: 12px; }
 .lb-nav { top: 50%; transform: translateY(-50%); font-size: 2.2rem !important; line-height: 1; }
-.lb-prev { left: 10px; }
-.lb-next { right: 10px; }
+.lb-prev { right: 10px; }
+.lb-next { left: 10px; }
 .lb-count { position: absolute; bottom: calc(14px + env(safe-area-inset-bottom)); opacity: .6; font-size: .9rem; }
 @media (hover: none) { .lb-nav { display: none; } }

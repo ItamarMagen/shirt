@@ -1,13 +1,13 @@
-// ✏️  THIS IS THE ONLY FILE YOU NEED TO EDIT.
-// 1. Put your photos in the "photos" folder.
-// 2. Add one line per photo below: the file name + a funny caption.
-// 3. Photos show up in this order, top to bottom.
+// ✏️  זה הקובץ היחיד שצריך לערוך.
+// 1. שימו את התמונות בתיקייה "photos".
+// 2. הוסיפו שורה לכל תמונה: שם הקובץ + כיתוב מצחיק.
+// 3. התמונות מוצגות בסדר הזה, מלמעלה למטה.
 
 const PHOTOS = [
-  { src: "photos/placeholder-1.svg", caption: "Dan, moments before destroying the dance floor (and his knee)" },
-  { src: "photos/placeholder-2.svg", caption: "Yossi has never met a pizza he didn't finish" },
-  { src: "photos/placeholder-3.svg", caption: "Noa took 400 selfies. This is the good one." },
-  { src: "photos/placeholder-4.svg", caption: "Staying hydrated. Allegedly." },
-  { src: "photos/placeholder-5.svg", caption: "Asleep before the first dance. A true professional." },
-  { src: "photos/placeholder-6.svg", caption: "Please do not give this man a microphone" },
+  { src: "photos/placeholder-1.svg", caption: "דן, רגע לפני שהרס את רחבת הריקודים (ואת הברך)" },
+  { src: "photos/placeholder-2.svg", caption: "יוסי עוד לא פגש פיצה שהוא לא סיים" },
+  { src: "photos/placeholder-3.svg", caption: "נועה צילמה 400 סלפי. זה הטוב שבהם." },
+  { src: "photos/placeholder-4.svg", caption: "שומר על הידרציה. כביכול." },
+  { src: "photos/placeholder-5.svg", caption: "נרדם לפני הריקוד הראשון. מקצוען אמיתי." },
+  { src: "photos/placeholder-6.svg", caption: "בבקשה לא לתת לבחור הזה מיקרופון" },
 ];
