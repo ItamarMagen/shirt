@@ -31,7 +31,19 @@
     <div id="lb-count" class="lb-count"></div>
   </div>
 
-  <script src="photos.js"></script>
-  <script src="app.js"></script>
+  <script>
+    // Always load the latest photo list, skipping the browser cache
+    (function () {
+      var v = Date.now();
+      var p = document.createElement("script");
+      p.src = "photos.js?v=" + v;
+      p.onload = function () {
+        var a = document.createElement("script");
+        a.src = "app.js?v=" + v;
+        document.body.appendChild(a);
+      };
+      document.body.appendChild(p);
+    })();
+  </script>
 </body>
 </html>
