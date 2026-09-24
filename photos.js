@@ -6,6 +6,8 @@
 const PHOTOS = [
   { src: "photos/leash.jpg", caption: "הוא אמר 'כן' ומאז הוא רק אומר 'הב' 🐕" },
   { src: "photos/casino.jpg", caption: "כשאומרים לו 'תביא חברים לחתונה' והוא לוקח את זה ברצינות 🃏" },
+  { src: "photos/disco.jpg", caption: "שבת בערב: קדחת. ראשון בבוקר: גב תפוס 🕺" },
+  { src: "photos/jungle.jpg", caption: "ככה הוא רואה את עצמו במראה כל בוקר 💪🌴" },
   { src: "photos/placeholder-1.svg", caption: "דן, רגע לפני שהרס את רחבת הריקודים (ואת הברך)" },
   { src: "photos/placeholder-2.svg", caption: "יוסי עוד לא פגש פיצה שהוא לא סיים" },
   { src: "photos/placeholder-3.svg", caption: "נועה צילמה 400 סלפי. זה הטוב שבהם." },
