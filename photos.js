@@ -14,4 +14,8 @@ const PHOTOS = [
   { src: "photos/karaoke-sleep.jpg", caption: "הקהל היה מרותק. חלק יותר מאחרים 😴🎤" },
   { src: "photos/karaoke-live.mp4", caption: "הופעה חיה מחדר הקריוקי. הקישו לסאונד, על אחריותכם 🎤🔊" },
   { src: "photos/karaoke-selfie.jpg", caption: "קריוקי, 2 בלילה. ברקע: הלהקה במיטבה 🤳" },
+  { src: "photos/sidewalk-help.jpg", caption: "יד לעזרה? לא צריך, הוא מרגיש מצוין על המדרכה 😁" },
+  { src: "photos/sidewalk-thumbsup.jpg", caption: "'אני בסדר גמור', הוא הודיע מהרצפה 👍" },
+  { src: "photos/monkey.jpg", caption: "תמונה קבוצתית. רק אחד פה מתנהג בבגרות 🐒" },
+  { src: "photos/rushmore.jpg", caption: "הר ראשמור של החבר'ה. חצובים באבן, כמו הבדיחות שלהם 🗿" },
 ];
