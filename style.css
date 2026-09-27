@@ -141,7 +141,7 @@ body {
   position: fixed; inset: 0; z-index: 10;
   background: rgba(10, 5, 20, .95);
   display: flex; align-items: center; justify-content: center;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
 }
 .lightbox[hidden] { display: none; }
 .lightbox [hidden] { display: none !important; }

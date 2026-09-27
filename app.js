@@ -148,9 +148,15 @@
   });
 
   // Swipe left/right to change photo, swipe down to close
-  let sx = 0, sy = 0;
-  lb.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  // (ignored for two-finger pinches and while zoomed in, so zooming doesn't change photo)
+  let sx = 0, sy = 0, multi = false;
+  lb.addEventListener("touchstart", (e) => {
+    if (e.touches.length > 1) { multi = true; return; }
+    multi = false;
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+  }, { passive: true });
   lb.addEventListener("touchend", (e) => {
+    if (multi || (window.visualViewport && visualViewport.scale > 1.05)) return;
     const dx = e.changedTouches[0].clientX - sx;
     const dy = e.changedTouches[0].clientY - sy;
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) show(current + (dx > 0 ? 1 : -1)); // RTL: swipe right = next

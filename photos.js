@@ -17,5 +17,10 @@ const PHOTOS = [
   { src: "photos/sidewalk-help.jpg", caption: "יד לעזרה? לא צריך, הוא מרגיש מצוין על המדרכה 😁" },
   { src: "photos/sidewalk-thumbsup.jpg", caption: "'אני בסדר גמור', הוא הודיע מהרצפה 👍" },
   { src: "photos/monkey.jpg", caption: "תמונה קבוצתית. רק אחד פה מתנהג בבגרות 🐒" },
+  { src: "photos/tiger.jpg", caption: "ישן כמו תינוק. השותף לחדר קצת נוחר 🐯" },
+  { src: "photos/bobblehead.jpg", caption: "מהדורת אספנים: ראש גדול, רגליים קטנות. נאמן למקור ⚽" },
+  { src: "photos/hangover.jpg", caption: "ההנגאובר 4: הפעם הם לא זוכרים אפילו איך קוראים להם 🕶️" },
+  { src: "photos/thailand-comic.jpg", caption: "תאילנד 2026: הסיפור המלא. הקישו והגדילו עם שתי אצבעות 🐒📸" },
+  { src: "photos/beegees.jpg", caption: "הבי ג'יז החדשים. עוד אין שיר, אבל השיער כבר מוכן 🕺" },
   { src: "photos/rushmore.jpg", caption: "הר ראשמור של החבר'ה. חצובים באבן, כמו הבדיחות שלהם 🗿" },
 ];
