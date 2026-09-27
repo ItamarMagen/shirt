@@ -11,4 +11,7 @@ const PHOTOS = [
   { src: "photos/superman.jpg", caption: "כוח העל האמיתי שלו? לתלות כביסה בלי שיבקשו ממנו 🦸" },
   { src: "photos/album.jpg", caption: "האלבום החדש 'ילד טוב ילד רע'. בקרוב בכל תחנות הדלק 🎤" },
   { src: "photos/podcast.jpg", caption: "הפודקאסט שלו: 3 מאזינים, שניים מהם אמא שלו 🎙️" },
+  { src: "photos/karaoke-sleep.jpg", caption: "הקהל היה מרותק. חלק יותר מאחרים 😴🎤" },
+  { src: "photos/karaoke-live.mp4", caption: "הופעה חיה מחדר הקריוקי. הקישו לסאונד, על אחריותכם 🎤🔊" },
+  { src: "photos/karaoke-selfie.jpg", caption: "קריוקי, 2 בלילה. ברקע: הלהקה במיטבה 🤳" },
 ];
