@@ -1,11 +1,11 @@
-# Print-ready "scan me" shirt graphic (transparent PNG, 300 DPI, ~20x26 cm).
+# Print-ready "scan me" shirt graphic (transparent PNG, 300 DPI, ~20x29 cm).
 # Usage: ~/.cache/wedding-qr-venv/bin/python tools/make-graphic.py https://itamarmagen.github.io/shirt/
 import sys, math, segno
 from PIL import Image, ImageDraw, ImageFont
 
 URL = sys.argv[1] if len(sys.argv) > 1 else "https://itamarmagen.github.io/shirt/"
 ROUNDED = "/System/Library/Fonts/SFHebrewRounded.ttf"
-W, H = 2400, 3100
+W, H = 2400, 3400
 PINK, YELLOW, INK = (255, 79, 154), (255, 217, 61), (26, 16, 48)
 
 def font(size, weight):
@@ -31,27 +31,27 @@ def sparkle(d, cx, cy, r, fill):
         pts.append((cx + rr * math.cos(a), cy + rr * math.sin(a)))
     d.polygon(pts, fill=fill)
 
-def heart(d, cx, cy, s, fill):
-    d.ellipse([cx - s, cy - s * 0.6, cx, cy + s * 0.4], fill=fill)
-    d.ellipse([cx, cy - s * 0.6, cx + s, cy + s * 0.4], fill=fill)
-    d.polygon([(cx - s * 0.97, cy + s * 0.05), (cx + s * 0.97, cy + s * 0.05), (cx, cy + s * 1.15)], fill=fill)
-
 def arrow(d, color, width):
     # Loopy hand-drawn arrow from the headline down toward the QR card
     # Quadratic curve: start right of the headline, bow outward, land on the card
-    (sx, sy), (cx, cy), (ex, ey) = (1990, 760), (2160, 1060), (1810, 1120)
+    (sx, sy), (cx, cy), (ex, ey) = (2010, 760), (2220, 1050), (1900, 1125)
     pts = []
-    for i in range(121):
-        t = i / 120
+    for i in range(601):
+        t = i / 600
         x = (1 - t) ** 2 * sx + 2 * (1 - t) * t * cx + t ** 2 * ex
         y = (1 - t) ** 2 * sy + 2 * (1 - t) * t * cy + t ** 2 * ey
         pts.append((x, y))
-    d.line(pts, fill=color, width=width, joint="curve")
+    # Stamp round dots along the curve for a smooth, even stroke
+    for (x, y) in pts:
+        d.ellipse([x - width / 2, y - width / 2, x + width / 2, y + width / 2], fill=color)
     (x1, y1), (x2, y2) = pts[-6], pts[-1]
     a = math.atan2(y2 - y1, x2 - x1)
     L = 95
     for da in (2.55, -2.55):
-        d.line([(x2, y2), (x2 + L * math.cos(a + da), y2 + L * math.sin(a + da))], fill=color, width=width)
+        for k in range(61):
+            x = x2 + L * k / 60 * math.cos(a + da)
+            y = y2 + L * k / 60 * math.sin(a + da)
+            d.ellipse([x - width / 2, y - width / 2, x + width / 2, y + width / 2], fill=color)
     for (x, y) in (pts[0], pts[-1]):
         d.ellipse([x - width / 2, y - width / 2, x + width / 2, y + width / 2], fill=color)
 
@@ -80,7 +80,8 @@ def make(variant):
     # QR card
     qr = segno.make(URL, error="h")
     mods = qr.symbol_size(scale=1, border=0)[0]
-    card_x0, card_y0, card_size = 520, 1170, 1360
+    card_size = 1600
+    card_x0, card_y0 = (W - card_size) // 2, 1170
     pad = 110
     m = (card_size - 2 * pad) // mods
     qr_px = m * mods
@@ -93,8 +94,6 @@ def make(variant):
         for c, v in enumerate(row):
             if v:
                 d.rectangle([off + c * m, offy + r * m, off + (c + 1) * m - 1, offy + (r + 1) * m - 1], fill=INK)
-    heart(d, card_x0 - 10, card_y0 + card_size + 30, 95, YELLOW if dark_shirt else PINK)
-    heart(d, card_x0 + card_size + 30, card_y0 + int(card_size * 0.72), 70, YELLOW if dark_shirt else PINK)
 
     # Teaser lines
     y = card_y0 + card_size + 150
@@ -105,5 +104,5 @@ def make(variant):
     img.save(out, dpi=(300, 300))
     return out
 
-for v in ("light", "dark"):
+for v in (sys.argv[2:] or ["dark"]):
     print("✓", make(v))
