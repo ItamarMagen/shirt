@@ -154,14 +154,15 @@ slots = []
 if SHOTS_DIR:
     for row in json.load(open(SHOT_TABLE)):
         a, b, num = row[:3]
+        max_speed = row[4] if len(row) > 4 else 1.25
         files = [f for f in glob.glob(f"{SHOTS_DIR}/{num}.*") if f.lower().endswith((".mp4", ".mov", ".webm", ".m4v"))]
-        slots.append((a, b, files[0] if files else None))
+        slots.append((a, b, files[0] if files else None, max_speed))
     print("clips found:", sum(1 for x in slots if x[2]), "/", len(slots), flush=True)
 
 reader = {"slot": None, "next": 0, "proc": None}
 
 def clip_frame(k, local_t):
-    a, b, path = slots[k]
+    a, b, path, max_speed = slots[k]
     want = int(round(local_t * FPS))
     if reader["slot"] != k or reader["next"] != want:
         if reader["proc"]: reader["proc"].kill()
@@ -169,7 +170,7 @@ def clip_frame(k, local_t):
                                              "-of", "csv=p=0", path]) or 0)
         # fit the clip to its slot: slow short clips (up to 1.6x), speed up long ones (up to 1.25x),
         # then loop or trim whatever is left
-        slow = min(1.6, max(0.8, (b - a) / dur)) if dur > 0 else 1.0
+        slow = min(1.6, max(1 / max_speed, (b - a) / dur)) if dur > 0 else 1.0
         vf = (f"setpts={slow:.3f}*PTS,scale={W}:{H}:force_original_aspect_ratio=increase,"
               f"crop={W}:{H},fps={FPS}")
         reader["proc"] = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-stream_loop", "-1", "-i", path,
@@ -181,7 +182,7 @@ def clip_frame(k, local_t):
     return Image.frombytes("RGB", (W, H), buf).convert("RGBA")
 
 def frame_at(t):
-    for k, (a, b, path) in enumerate(slots):
+    for k, (a, b, path, _) in enumerate(slots):
         if a <= t < b and path:
             f = clip_frame(k, t - a)
             overlay(f, t)
