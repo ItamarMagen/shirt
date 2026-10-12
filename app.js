@@ -36,7 +36,11 @@
       div.className = "stanza";
       stanza.split("\n").forEach((line) => {
         const el = document.createElement(line.startsWith("#") ? "h3" : "p");
-        el.textContent = line.replace(/^#\s*/, "");
+        let text = line.replace(/^#\s*/, "");
+        // English-only lines read left-to-right; in mixed lines keep "!" glued to the English words
+        if (!/[\u0590-\u05FF]/.test(text)) el.dir = "ltr";
+        else text = text.replace(/([A-Za-z][!?.,)]+)/g, "$1\u200E");
+        el.textContent = text;
         div.appendChild(el);
       });
       body.appendChild(div);
