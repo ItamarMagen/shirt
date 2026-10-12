@@ -125,36 +125,26 @@ def txt(key, *args):
     if key not in txt_cache: txt_cache[key] = render_text(*args)
     return txt_cache[key]
 
-header = render_text(timing["title"], 40, "Black", YELLOW, PINK)
+
+TITLE_SECS = 5.0
 
 def overlay(frame, t):
-    # Title card during the instrumental intro
-    if t < lines[0][0] - 0.2:
-        a = min(1, t / 0.8)
+    # Song title for the first few seconds only, then it fades away
+    if t < TITLE_SECS:
+        a = min(1, t / 0.6, (TITLE_SECS - t) / 0.8)
         title = txt("T", timing["title"], 84, "Black", YELLOW, PINK)
         sub = txt("S", timing["subtitle"], 46, "ExtraBold", WHITE)
         blit(frame, title, 905, a, pop=min(1, t / 0.6))
         blit(frame, sub, 905 + title.height + 6, a)
-        return
-    frame.alpha_composite(header, (0, 34))
-    cur = nxt = None
+    # Karaoke: only the line being sung right now
     for k, ln in enumerate(lines):
         if ln[0] - 0.15 <= t < ln[1]:
-            cur = k; break
-        if t < ln[0]:
-            nxt = k; break
-    if cur is not None:
-        s, e, text = lines[cur][:3]
-        solo = len(lines[cur]) > 3
-        img = txt(("c", cur), text, 58 if solo else 54, "Black", YELLOW, PINK)
-        age = t - (s - 0.15)
-        blit(frame, img, 900, min(1, age / 0.18, max(0, (e - t) / 0.2)), pop=min(1, age / 0.22))
-        if cur + 1 < len(lines) and lines[cur + 1][0] - e < 3:
-            n = txt(("n", cur + 1), lines[cur + 1][2], 34, "Bold", WHITE)
-            blit(frame, n, 900 + img.height + 14, 0.55)
-    elif nxt is not None and lines[nxt][0] - t < 3:
-        n = txt(("n", nxt), lines[nxt][2], 34, "Bold", WHITE)
-        blit(frame, n, 960, 0.55 * min(1, (3 - (lines[nxt][0] - t)) / 0.5))
+            s, e, text = ln[:3]
+            img = txt(("c", k), text, 58 if len(ln) > 3 else 54, "Black", YELLOW, PINK)
+            age = t - (s - 0.15)
+            blit(frame, img, 940 - img.height // 2 + 40, min(1, age / 0.18, max(0, (e - t) / 0.2)),
+                 pop=min(1, age / 0.22))
+            break
 
 def blit(frame, img, y, alpha=1.0, pop=1.0):
     if alpha <= 0: return
