@@ -103,13 +103,6 @@ def photo_assets(i):
         cache[i] = (backdrop(srcs[i]), polaroid(srcs[i], i))
     return cache[i]
 
-# bottom gradient for lyric legibility
-grad = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-gd = ImageDraw.Draw(grad)
-for y in range(820, H):
-    a = int(min(1, (y - 820) / 160) * 215)
-    gd.line([(0, y), (W, y)], fill=INK + (a,))
-
 def photo_frame(i, t_local):
     bg, card = photo_assets(i)
     frame = bg.copy()
@@ -127,6 +120,7 @@ def txt(key, *args):
 
 
 TITLE_SECS = 5.0
+
 
 def overlay(frame, t):
     # Song title for the first few seconds only, then it fades away
@@ -188,14 +182,12 @@ def frame_at(t):
     for k, (a, b, path) in enumerate(slots):
         if a <= t < b and path:
             f = clip_frame(k, t - a)
-            f.alpha_composite(grad)
             overlay(f, t)
             return f.convert("RGB")
     i = int(t // SLOT); tl = t - i * SLOT
     f = photo_frame(i, tl)
     if tl > SLOT - FADE:                               # crossfade into next photo
         f = Image.blend(f, photo_frame(i + 1, tl - SLOT), (tl - (SLOT - FADE)) / FADE)
-    f.alpha_composite(grad)
     overlay(f, t)
     return f.convert("RGB")
 
