@@ -1,13 +1,17 @@
 # Renders the lyric clip: photo slideshow (polaroid + blurred backdrop, slow zoom,
 # crossfades) with timed lyrics, then muxes the song.
 # Usage: ~/.cache/wedding-qr-venv/bin/python tools/make-lyric-video.py pictures/song.mp3 photos/song.mp4 [--preview SECONDS]
-import sys, json, math, random, re, subprocess
+#        add --shots shots  to use AI clips (shots/01.mp4 …, timed by tools/ai-shots.json);
+#        sections without a clip fall back to the photo slideshow.
+import sys, json, math, random, re, subprocess, glob, os
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps, ImageEnhance
 
 AUDIO, OUT = sys.argv[1], sys.argv[2]
 PREVIEW = None
 if "--preview" in sys.argv:
     PREVIEW = [float(x) for x in sys.argv[sys.argv.index("--preview") + 1].split(",")]
+
+SHOTS_DIR = sys.argv[sys.argv.index("--shots") + 1] if "--shots" in sys.argv else None
 
 W, H, FPS = 720, 1280, 25
 PINK, YELLOW, INK, WHITE = (255, 79, 154), (255, 217, 61), (26, 16, 48), (255, 255, 255)
@@ -160,7 +164,41 @@ def blit(frame, img, y, alpha=1.0, pop=1.0):
         img = img.copy(); img.putalpha(img.getchannel("A").point(lambda v: int(v * alpha)))
     frame.alpha_composite(img, ((W - img.width) // 2, int(y)))
 
+# ---------- AI clips ----------
+slots = []
+if SHOTS_DIR:
+    for a, b, num, _ in json.load(open("tools/ai-shots.json")):
+        files = [f for f in glob.glob(f"{SHOTS_DIR}/{num}.*") if f.lower().endswith((".mp4", ".mov", ".webm", ".m4v"))]
+        slots.append((a, b, files[0] if files else None))
+    print("clips found:", sum(1 for x in slots if x[2]), "/", len(slots), flush=True)
+
+reader = {"slot": None, "next": 0, "proc": None}
+
+def clip_frame(k, local_t):
+    a, b, path = slots[k]
+    want = int(round(local_t * FPS))
+    if reader["slot"] != k or reader["next"] != want:
+        if reader["proc"]: reader["proc"].kill()
+        dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                                             "-of", "csv=p=0", path]) or 0)
+        slow = min(1.6, max(1.0, (b - a) / dur)) if dur > 0 else 1.0   # stretch short clips a bit, then loop
+        vf = (f"setpts={slow:.3f}*PTS,scale={W}:{H}:force_original_aspect_ratio=increase,"
+              f"crop={W}:{H},fps={FPS}")
+        reader["proc"] = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-stream_loop", "-1", "-i", path,
+            "-vf", vf, "-ss", f"{local_t:.3f}", "-an", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        reader.update(slot=k, next=want)
+    buf = reader["proc"].stdout.read(W * H * 3)
+    reader["next"] += 1
+    return Image.frombytes("RGB", (W, H), buf).convert("RGBA")
+
 def frame_at(t):
+    for k, (a, b, path) in enumerate(slots):
+        if a <= t < b and path:
+            f = clip_frame(k, t - a)
+            f.alpha_composite(grad)
+            overlay(f, t)
+            return f.convert("RGB")
     i = int(t // SLOT); tl = t - i * SLOT
     f = photo_frame(i, tl)
     if tl > SLOT - FADE:                               # crossfade into next photo
