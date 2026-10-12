@@ -1,7 +1,7 @@
 # Renders the lyric clip: photo slideshow (polaroid + blurred backdrop, slow zoom,
 # crossfades) with timed lyrics, then muxes the song.
 # Usage: ~/.cache/wedding-qr-venv/bin/python tools/make-lyric-video.py pictures/song.mp3 photos/song.mp4 [--preview SECONDS]
-#        add --shots shots  to use AI clips (shots/01.mp4 …, timed by tools/ai-shots.json);
+#        add --shots shots  to use AI clips (shots/01.mp4 …, timed by --table, default tools/ai-shots-veo.json);
 #        sections without a clip fall back to the photo slideshow.
 import sys, json, math, random, re, subprocess, glob, os
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps, ImageEnhance
@@ -12,6 +12,7 @@ if "--preview" in sys.argv:
     PREVIEW = [float(x) for x in sys.argv[sys.argv.index("--preview") + 1].split(",")]
 
 SHOTS_DIR = sys.argv[sys.argv.index("--shots") + 1] if "--shots" in sys.argv else None
+SHOT_TABLE = sys.argv[sys.argv.index("--table") + 1] if "--table" in sys.argv else "tools/ai-shots-veo.json"
 
 W, H, FPS = 720, 1280, 25
 PINK, YELLOW, INK, WHITE = (255, 79, 154), (255, 217, 61), (26, 16, 48), (255, 255, 255)
@@ -167,7 +168,8 @@ def blit(frame, img, y, alpha=1.0, pop=1.0):
 # ---------- AI clips ----------
 slots = []
 if SHOTS_DIR:
-    for a, b, num, _ in json.load(open("tools/ai-shots.json")):
+    for row in json.load(open(SHOT_TABLE)):
+        a, b, num = row[:3]
         files = [f for f in glob.glob(f"{SHOTS_DIR}/{num}.*") if f.lower().endswith((".mp4", ".mov", ".webm", ".m4v"))]
         slots.append((a, b, files[0] if files else None))
     print("clips found:", sum(1 for x in slots if x[2]), "/", len(slots), flush=True)
