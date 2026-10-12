@@ -167,7 +167,9 @@ def clip_frame(k, local_t):
         if reader["proc"]: reader["proc"].kill()
         dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                                              "-of", "csv=p=0", path]) or 0)
-        slow = min(1.6, max(1.0, (b - a) / dur)) if dur > 0 else 1.0   # stretch short clips a bit, then loop
+        # fit the clip to its slot: slow short clips (up to 1.6x), speed up long ones (up to 1.25x),
+        # then loop or trim whatever is left
+        slow = min(1.6, max(0.8, (b - a) / dur)) if dur > 0 else 1.0
         vf = (f"setpts={slow:.3f}*PTS,scale={W}:{H}:force_original_aspect_ratio=increase,"
               f"crop={W}:{H},fps={FPS}")
         reader["proc"] = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-stream_loop", "-1", "-i", path,
