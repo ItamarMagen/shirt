@@ -18,8 +18,13 @@ W, H, FPS = 720, 1280, 25
 PINK, YELLOW, INK, WHITE = (255, 79, 154), (255, 217, 61), (26, 16, 48), (255, 255, 255)
 ROUNDED = "tools/fonts/Rubik.ttf"  # OFL, covers Hebrew + Latin + punctuation
 timing = json.load(open("tools/song-timing.json"))
-duration = float(subprocess.check_output(
-    ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", AUDIO]))
+def real_duration(path):
+    """Decode the audio and count samples; some MP3 headers report a wrong (shorter) length."""
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-ac", "1", "-ar", "8000", "-f", "s16le", "-"],
+                         capture_output=True).stdout
+    return len(raw) / 2 / 8000
+
+duration = real_duration(AUDIO)
 
 def font(size, weight):
     f = ImageFont.truetype(ROUNDED, size); f.set_variation_by_name(weight); return f
@@ -203,6 +208,7 @@ enc = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error",
     "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
     "-i", AUDIO, "-map", "0:v", "-map", "1:a", "-shortest",
     "-c:v", "libx264", "-preset", "medium", "-crf", "24", "-pix_fmt", "yuv420p",
+    "-vf", f"fade=t=out:st={max(0, duration - 2.0):.2f}:d=2.0",
     "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", "-map_metadata", "-1", OUT],
     stdin=subprocess.PIPE)
 n = int(duration * FPS) + 1
