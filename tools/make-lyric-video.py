@@ -163,7 +163,7 @@ reader = {"slot": None, "next": 0, "proc": None}
 
 def clip_frame(k, local_t):
     a, b, path, max_speed = slots[k]
-    want = int(round(local_t * FPS))
+    want = int(math.floor(local_t * FPS + 1e-6))   # consistent frame index (round() caused repeats)
     if reader["slot"] != k or reader["next"] != want:
         if reader["proc"]: reader["proc"].kill()
         dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
@@ -174,7 +174,7 @@ def clip_frame(k, local_t):
         vf = (f"setpts={slow:.3f}*PTS,scale={W}:{H}:force_original_aspect_ratio=increase,"
               f"crop={W}:{H},fps={FPS}")
         reader["proc"] = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-stream_loop", "-1", "-i", path,
-            "-vf", vf, "-ss", f"{local_t:.3f}", "-an", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
+            "-vf", vf, "-ss", f"{want / FPS:.4f}", "-an", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
         reader.update(slot=k, next=want)
     buf = reader["proc"].stdout.read(W * H * 3)
