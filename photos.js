@@ -6,7 +6,6 @@
 const PHOTOS = [
   { src: "photos/casino.jpg", caption: "כשאומרים לו 'תביא חברים לחתונה' והוא לוקח את זה ברצינות 🃏" },
   { src: "photos/disco.jpg", caption: "שבת בערב: קדחת. ראשון בבוקר: גב תפוס 🕺" },
-  { src: "photos/jungle.jpg", caption: "ככה הוא רואה את עצמו במראה כל בוקר 💪🌴" },
   { src: "photos/superman.jpg", caption: "כוח העל האמיתי שלו? לתלות כביסה בלי שיבקשו ממנו 🦸" },
   { src: "photos/album.jpg", caption: "האלבום החדש 'ילד טוב ילד רע'. בקרוב בכל תחנות הדלק 🎤" },
   { src: "photos/podcast.jpg", caption: "הפודקאסט שלו: 3 מאזינים, שניים מהם אמא שלו 🎙️" },
