@@ -10,7 +10,7 @@ const SONG = {
   poster: "photos/song-poster.jpg",
   lyrics: `
 # פתיח
-יאללה דור, תתעורר!
+יאללה דור, תתעורר! תתעורר!
 גלית מחכה!
 
 # בית 1
@@ -71,6 +71,8 @@ Just beat it! (Beat it!)
 
 # סיום
 Beat it! Beat it!
+Just beat it! Just beat it!
+רמלה עיר עולם!
 רמלה עיר עולם!
 מזל טוב דור וגלית!
 `,
