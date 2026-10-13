@@ -138,9 +138,31 @@
  ],
  [
   138.0,
-  146.0,
+  140.0,
   "20",
-  "Chorus 2: rooftop dance"
+  "Chorus 2: chuppah on the car roof",
+  2.0
+ ],
+ [
+  140.0,
+  142.0,
+  "20b",
+  "Chorus 2: chuppah in the fighter jet",
+  2.0
+ ],
+ [
+  142.0,
+  144.0,
+  "20c",
+  "Chorus 2: chuppah in the karaoke room",
+  2.0
+ ],
+ [
+  144.0,
+  146.0,
+  "20d",
+  "Chorus 2: the real chuppah, Galit waiting",
+  2.0
  ],
  [
   146.0,
@@ -152,13 +174,13 @@
   153.5,
   164.5,
   "22",
-  "Guitar solo: on the car roof"
+  "Guitar solo: Dor and five friends band on the sunset rooftop"
  ],
  [
   164.5,
   175.5,
   "23",
-  "Guitar solo: sunset rooftop"
+  "Guitar solo: on the car roof"
  ],
  [
   175.5,
