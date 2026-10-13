@@ -14,7 +14,10 @@ if "--preview" in sys.argv:
 SHOTS_DIR = sys.argv[sys.argv.index("--shots") + 1] if "--shots" in sys.argv else None
 SHOT_TABLE = sys.argv[sys.argv.index("--table") + 1] if "--table" in sys.argv else "tools/ai-shots.json"
 
-W, H, FPS = 720, 1280, 25
+HQ = "--hq" in sys.argv          # final export: 1080x1920 @ 24fps, motion-smoothed slow-downs, high bitrate
+W, H, FPS = (1080, 1920, 24) if HQ else (720, 1280, 25)
+K = W / 720                      # layout below is designed at 720px wide; scale everything with K
+def k(v): return int(round(v * K))
 PINK, YELLOW, INK, WHITE = (255, 79, 154), (255, 217, 61), (26, 16, 48), (255, 255, 255)
 ROUNDED = "tools/fonts/Rubik.ttf"  # OFL, covers Hebrew + Latin + punctuation
 timing = json.load(open("tools/song-timing.json"))
@@ -56,7 +59,8 @@ def wrap(text, f, maxw):
         out.append(line)
     return out
 
-def render_text(text, size, weight, fill, shadow=None, maxw=W - 90):
+def render_text(text, size, weight, fill, shadow=None, maxw=None):
+    maxw = maxw or W - k(90)
     """Centered multi-line RTL text block as an RGBA image (cached by caller)."""
     f = font(size, weight)
     lines = wrap(text, f, maxw)
@@ -69,27 +73,27 @@ def render_text(text, size, weight, fill, shadow=None, maxw=W - 90):
         x = (W - w) // 2 - b[0]; y = i * lh + 8 - b[1] + int(size * 0.12)
         ln, dirn = bidi(ln)
         if shadow:
-            dd.text((x + 4, y + 4), ln, font=f, fill=shadow, direction=dirn, language="he",
-                    stroke_width=3, stroke_fill=shadow)
+            dd.text((x + k(4), y + k(4)), ln, font=f, fill=shadow, direction=dirn, language="he",
+                    stroke_width=k(3), stroke_fill=shadow)
         dd.text((x, y), ln, font=f, fill=fill, direction=dirn, language="he",
-                stroke_width=3, stroke_fill=INK)
+                stroke_width=k(3), stroke_fill=INK)
     return img
 
 # ---------- photos ----------
 srcs = re.findall(r'src:\s*"(photos/[^"]+\.(?:jpg|jpeg|png))"', open("photos.js").read())
 random.Random(7).shuffle(srcs)
-BOX_W, BOX_H, BOX_CY = 640, 700, 500
+BOX_W, BOX_H, BOX_CY = k(640), k(700), k(500)
 SLOT = max(3.2, duration / len(srcs))          # seconds per photo
 FADE = 0.5
 
 def polaroid(path, i):
     im = ImageOps.exif_transpose(Image.open(path)).convert("RGB")
-    bw = 14
+    bw = k(14)
     im.thumbnail((BOX_W - 2 * bw, BOX_H - 2 * bw))
     card = Image.new("RGBA", (im.width + 2 * bw, im.height + 2 * bw), WHITE + (255,))
     card.paste(im, (bw, bw))
     mask = Image.new("L", card.size, 0)
-    ImageDraw.Draw(mask).rounded_rectangle([0, 0, card.width - 1, card.height - 1], radius=22, fill=255)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, card.width - 1, card.height - 1], radius=k(22), fill=255)
     card.putalpha(mask)
     tilt = [-2.2, 1.6, -1.2, 2.0, -0.6, 1.0][i % 6]
     return card.rotate(tilt, expand=True, resample=Image.BICUBIC)
@@ -131,17 +135,17 @@ def overlay(frame, t):
     # Song title for the first few seconds only, then it fades away
     if t < TITLE_SECS:
         a = min(1, t / 0.6, (TITLE_SECS - t) / 0.8)
-        title = txt("T", timing["title"], 84, "Black", YELLOW, PINK)
-        sub = txt("S", timing["subtitle"], 46, "ExtraBold", WHITE)
-        blit(frame, title, 905, a, pop=min(1, t / 0.6))
-        blit(frame, sub, 905 + title.height + 6, a)
+        title = txt("T", timing["title"], k(84), "Black", YELLOW, PINK)
+        sub = txt("S", timing["subtitle"], k(46), "ExtraBold", WHITE)
+        blit(frame, title, k(905), a, pop=min(1, t / 0.6))
+        blit(frame, sub, k(905) + title.height + k(6), a)
     # Karaoke: only the line being sung right now
-    for k, ln in enumerate(lines):
+    for n, ln in enumerate(lines):
         if ln[0] - 0.15 <= t < ln[1]:
             s, e, text = ln[:3]
-            img = txt(("c", k), text, 58 if len(ln) > 3 else 54, "Black", YELLOW, PINK)
+            img = txt(("c", n), text, k(58) if len(ln) > 3 else k(54), "Black", YELLOW, PINK)
             age = t - (s - 0.15)
-            blit(frame, img, 940 - img.height // 2 + 40, min(1, age / 0.18, max(0, (e - t) / 0.2)),
+            blit(frame, img, k(940) - img.height // 2 + k(40), min(1, age / 0.18, max(0, (e - t) / 0.2)),
                  pop=min(1, age / 0.22))
             break
 
@@ -166,30 +170,33 @@ if SHOTS_DIR:
 
 reader = {"slot": None, "next": 0, "proc": None}
 
-def clip_frame(k, local_t):
-    a, b, path, max_speed = slots[k]
+def clip_frame(si, local_t):
+    a, b, path, max_speed = slots[si]
     want = int(math.floor(local_t * FPS + 1e-6))   # consistent frame index (round() caused repeats)
-    if reader["slot"] != k or reader["next"] != want:
+    if reader["slot"] != si or reader["next"] != want:
         if reader["proc"]: reader["proc"].kill()
         dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                                              "-of", "csv=p=0", path]) or 0)
         # fit the clip to its slot: slow short clips (up to 1.6x), speed up long ones (up to 1.25x),
         # then loop or trim whatever is left
         slow = min(1.6, max(1 / max_speed, (b - a) / dur)) if dur > 0 else 1.0
-        vf = (f"setpts={slow:.3f}*PTS,scale={W}:{H}:force_original_aspect_ratio=increase,"
-              f"crop={W}:{H},fps={FPS}")
+        # HQ: synthesize in-between frames for slowed-down clips instead of repeating frames
+        retime = (f"minterpolate=fps={FPS}:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1"
+                  if HQ and slow > 1.05 else f"fps={FPS}")
+        vf = (f"setpts={slow:.3f}*PTS,scale={W}:{H}:force_original_aspect_ratio=increase:flags=lanczos,"
+              f"crop={W}:{H},{retime}")
         reader["proc"] = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-stream_loop", "-1", "-i", path,
             "-vf", vf, "-ss", f"{want / FPS:.4f}", "-an", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-        reader.update(slot=k, next=want)
+        reader.update(slot=si, next=want)
     buf = reader["proc"].stdout.read(W * H * 3)
     reader["next"] += 1
     return Image.frombytes("RGB", (W, H), buf).convert("RGBA")
 
 def frame_at(t):
-    for k, (a, b, path, _) in enumerate(slots):
+    for si, (a, b, path, _) in enumerate(slots):
         if a <= t < b and path:
-            f = clip_frame(k, t - a)
+            f = clip_frame(si, t - a)
             overlay(f, t)
             return f.convert("RGB")
     i = int(t // SLOT); tl = t - i * SLOT
@@ -207,13 +214,14 @@ if PREVIEW:
 enc = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error",
     "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
     "-i", AUDIO, "-map", "0:v", "-map", "1:a", "-shortest",
-    "-c:v", "libx264", "-preset", "medium", "-crf", "24", "-pix_fmt", "yuv420p",
+    "-c:v", "libx264", "-preset", "slow" if HQ else "medium", "-crf", "15" if HQ else "24",
+    "-profile:v", "high", "-pix_fmt", "yuv420p",
     "-vf", f"fade=t=out:st={max(0, duration - 2.0):.2f}:d=2.0",
-    "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", "-map_metadata", "-1", OUT],
+    "-c:a", "aac", "-b:a", "320k" if HQ else "160k", "-movflags", "+faststart", "-map_metadata", "-1", OUT],
     stdin=subprocess.PIPE)
 n = int(duration * FPS) + 1
-for k in range(n):
-    enc.stdin.write(frame_at(k / FPS).tobytes())
-    if k % (FPS * 20) == 0: print(f"{k / FPS:5.0f}s / {duration:.0f}s", flush=True)
+for fi in range(n):
+    enc.stdin.write(frame_at(fi / FPS).tobytes())
+    if fi % (FPS * 20) == 0: print(f"{fi / FPS:5.0f}s / {duration:.0f}s", flush=True)
 enc.stdin.close(); enc.wait()
 print("done", OUT)
