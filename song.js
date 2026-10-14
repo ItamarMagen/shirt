@@ -6,7 +6,8 @@
 const SONG = {
   title: "הם רק רוצים לרקוד 🎤",
   subtitle: "שיר מקורי שהחבר'ה כתבו לכבוד דור וגלית",
-  video: "photos/song.mp4",
+  video: "photos/song.mp4",            // fallback for browsers without HLS
+  hls: "photos/hls/master.m3u8",        // adaptive streaming: 360p / 540p / 720p by connection speed
   poster: "photos/song-poster.jpg",
   lyrics: `
 # פתיח

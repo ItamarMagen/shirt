@@ -3,6 +3,30 @@
   const tilts = [-1.5, 1, -0.5, 1.5, -1, 0.5];
   const isVideo = (src) => /\.(mp4|webm|mov|m4v)$/i.test(src);
 
+  // Adaptive streaming: Safari/iOS play HLS natively; other browsers get hls.js (loaded only when
+  // needed); anything that fails falls back to the plain MP4.
+  function attachSong(v) {
+    const mp4 = SONG.video + (SONG.poster ? "" : "#t=0.1");
+    const fallback = () => { v.src = mp4; };
+    if (!SONG.hls) return fallback();
+    if (v.canPlayType("application/vnd.apple.mpegurl")) { v.src = SONG.hls; return; }
+    if (!window.MediaSource && !window.ManagedMediaSource) return fallback();
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/hls.js@1.7.3/dist/hls.light.min.js";
+    s.integrity = "sha384-y8wQxRLtNclrHbMBLBLTEkgUrdFu6uWzZiobE1wBE09nt2wHIZlBPvPepdZU4+MM";
+    s.crossOrigin = "anonymous";
+    s.onload = () => {
+      if (!window.Hls || !Hls.isSupported()) return fallback();
+      const hls = new Hls({ capLevelToPlayerSize: true, maxBufferLength: 20 });
+      hls.on(Hls.Events.ERROR, (_, d) => { if (d.fatal) { hls.destroy(); fallback(); } });
+      hls.loadSource(SONG.hls);
+      hls.attachMedia(v);
+      window.songHls = hls;   // handy for debugging
+    };
+    s.onerror = fallback;
+    document.head.appendChild(s);
+  }
+
   // Song section
   const songEl = document.getElementById("song");
   let songVideo = null;
@@ -24,7 +48,7 @@
       songVideo.playsInline = true;
       songVideo.preload = "metadata";
       if (SONG.poster) songVideo.poster = SONG.poster;
-      songVideo.src = SONG.video + (SONG.poster ? "" : "#t=0.1");
+      attachSong(songVideo);
       player.appendChild(songVideo);
     } else {
       player.innerHTML = `<div class="song-soon"><span class="soon-icon">🎬</span><strong>הקליפ בדרך...</strong><span>עוד קצת סבלנות, זה שווה את זה</span></div>`;
