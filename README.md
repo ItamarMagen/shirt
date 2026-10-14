@@ -39,3 +39,9 @@ This creates:
 
 **Print tips:** make it at least 5 × 5 cm, keep the white border around it, and
 **scan a test print with your phone before printing all the shirts.**
+
+## Song clip streaming (HLS)
+The song clip is served as adaptive HLS from `photos/hls/` (360p / 540p / 720p, 4-second segments),
+with `photos/song.mp4` as the fallback. After re-rendering the clip, regenerate the ladder from the
+1080p master (see the ffmpeg command in the git history for "adaptive HLS streaming") and replace
+`photos/hls/` and `photos/song.mp4` together.
