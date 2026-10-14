@@ -166,3 +166,10 @@ body {
 .lb-next { left: 10px; }
 .lb-count { position: absolute; bottom: calc(14px + env(safe-area-inset-bottom)); opacity: .6; font-size: .9rem; }
 @media (hover: none) { .lb-nav { display: none; } }
+
+/* Infinite-scroll sentinel */
+.load-more { height: 1px; }
+
+/* Placeholder size until a gallery photo has loaded (keeps "load 10 at a time" honest) */
+.card img.pending { aspect-ratio: 3 / 4; object-fit: cover; }
+.card.is-video video:not([data-ready]) { aspect-ratio: 9 / 16; }
